@@ -1,6 +1,7 @@
 "use strict";
 const HttpError = require('../utils/httpError');
 const uuid = require('uuid/v4');
+const { validationResult } = require('express-validator');
 let DUMMY_PAYMENTS = [
   {
     id: 'p1',
@@ -63,6 +64,13 @@ const getPaymentsByUserId = (req, res, next) => {
 }
 
 const createPayment = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError('Invalid inputs passed, please check your data.', 422)
+    );
+  }
+
   const { wallet, sum, description, category, currency, date } = req.body;
   const createdPlace = {
     id: uuid(),
@@ -78,11 +86,15 @@ const createPayment = (req, res, next) => {
 }
 
 const updatePayment = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError('Invalid inputs passed, please check your data.', 422)
+    );
+  }
+
   const { sum, description, category, date } = req.body;
   const paymentId = req.params.pid
-  /*  const updatedPayment = {
-      ...DUMMY_PAYMENTS.find(p => p.id === paymentId)
-    }*/
   const paymentIndex = DUMMY_PAYMENTS.findIndex(p => p.id === paymentId)
   if (paymentIndex === -1) return next(new HttpError('updated place does not exist'), 404)
   DUMMY_PAYMENTS[paymentIndex] = {
@@ -97,6 +109,7 @@ const updatePayment = (req, res, next) => {
 
 const deletePayment = (req, res, next) => {
   const paymentId = req.params.pid;
+  if (!DUMMY_PAYMENTS.find(p => p.id === paymentId)) return next(new HttpError('could not find place to delete'), 404)
   DUMMY_PAYMENTS = DUMMY_PAYMENTS.filter(p => p.id !== paymentId);
   res.status(200).json({ message: 'payment successfully deleted' });
 }
