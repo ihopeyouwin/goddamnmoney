@@ -7,9 +7,10 @@ const paymentRoutes = require('./routes/paymentRoutes');
 
 
 const app = express();
+app.use(bodyParser.json());
 
-app.use('/users', userRoutes)
-app.use('/payments', paymentRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/payments', paymentRoutes)
 app.use((error, req, res, next) => {
   if(res.headerSent){
     return next(error)
