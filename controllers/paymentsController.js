@@ -52,7 +52,7 @@ const getPaymentsByUserId = (req, res, next) => {
   const payments = DUMMY_PAYMENTS.filter(p => {
     return p.wallet === userId
   })
-  if (!payments.length) {
+  if (!payments || !payments.length) {
     return next(new HttpError('could not find a transactions for that user'), 404)
   }
   res.json({ payments })
@@ -72,7 +72,31 @@ const createPayment = (req, res, next) => {
   res.status(201).json(createdPlace);
 }
 
+const updatePayment = (req, res, next) => {
+  const { sum, description, category } = req.body;
+  const paymentId = req.params.pid
+  /*  const updatedPayment = {
+      ...DUMMY_PAYMENTS.find(p => p.id === paymentId)
+    }*/
+  const paymentIndex = DUMMY_PAYMENTS.findIndex(p => p.id === paymentId)
+  if (paymentIndex === -1) return next(new HttpError('updated place does not exist'), 404)
+  DUMMY_PAYMENTS[paymentIndex] = {
+    ...DUMMY_PAYMENTS[paymentIndex],
+    sum: sum,
+    description: description,
+    category: category
+  }
+  res.status(201).json(DUMMY_PAYMENTS[paymentIndex]);
+}
+
+const deletePayment = (req, res, next) => {
+  const paymentId = req.params.pid;
+  DUMMY_PAYMENTS = DUMMY_PAYMENTS.filter(p => p.id !== paymentId);
+  res.status(200).json({ message: 'payment successfully deleted' });
+}
 
 exports.getPaymentById = getPaymentById;
 exports.getPaymentsByUserId = getPaymentsByUserId;
 exports.createPayment = createPayment;
+exports.updatePayment = updatePayment;
+exports.deletePayment = deletePayment;
