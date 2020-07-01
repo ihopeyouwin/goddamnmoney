@@ -8,7 +8,8 @@ let DUMMY_PAYMENTS = [
     sum: 40000,
     description: 'shopping',
     category: 'purchases',
-    currency: 'BYN'
+    currency: 'BYN',
+    date: '2020-05-12T15:03:00.164Z'
   },
   {
     id: 'p2',
@@ -16,7 +17,8 @@ let DUMMY_PAYMENTS = [
     sum: 30000,
     description: 'weekend at the seaside',
     category: 'leisure',
-    currency: 'BYN'
+    currency: 'BYN',
+    date: '2020-06-21T15:03:00.164Z'
   },
   {
     id: 'p3',
@@ -24,7 +26,8 @@ let DUMMY_PAYMENTS = [
     sum: 10000,
     description: 'dentist',
     category: 'health',
-    currency: 'BYN'
+    currency: 'BYN',
+    date: '2020-06-30T15:03:00.164Z'
   },
   {
     id: 'p4',
@@ -32,7 +35,8 @@ let DUMMY_PAYMENTS = [
     sum: 20000,
     description: 'car leasing',
     category: 'transport',
-    currency: 'BYN'
+    currency: 'BYN',
+    date: '2020-07-01T15:03:00.164Z'
   }
 ]
 
@@ -59,21 +63,22 @@ const getPaymentsByUserId = (req, res, next) => {
 }
 
 const createPayment = (req, res, next) => {
-  const { wallet, sum, description, category, currency } = req.body;
+  const { wallet, sum, description, category, currency, date } = req.body;
   const createdPlace = {
     id: uuid(),
     wallet,
     sum,
     description,
     category,
-    currency
+    currency,
+    date
   }
   DUMMY_PAYMENTS.push(createdPlace);
   res.status(201).json(createdPlace);
 }
 
 const updatePayment = (req, res, next) => {
-  const { sum, description, category } = req.body;
+  const { sum, description, category, date } = req.body;
   const paymentId = req.params.pid
   /*  const updatedPayment = {
       ...DUMMY_PAYMENTS.find(p => p.id === paymentId)
@@ -82,9 +87,10 @@ const updatePayment = (req, res, next) => {
   if (paymentIndex === -1) return next(new HttpError('updated place does not exist'), 404)
   DUMMY_PAYMENTS[paymentIndex] = {
     ...DUMMY_PAYMENTS[paymentIndex],
-    sum: sum,
-    description: description,
-    category: category
+    sum,
+    description,
+    category,
+    date
   }
   res.status(201).json(DUMMY_PAYMENTS[paymentIndex]);
 }
