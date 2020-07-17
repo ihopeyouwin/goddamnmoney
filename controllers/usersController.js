@@ -9,14 +9,14 @@ let DUMMY_USERS = [{
   id: 'u1',
   name: 'Alex',
   email: 'alexUA007@gmail.com',
-  password: '12345',
+  password: '$2a$12$Nt/MrHkir0flrx/H.RC0E.UHVtp48RU0m6sGgeDAGbPYeB7XiDWf2',
   wallet: '001',
 }]
 
 const getUserData = (req, res, next) => {
   const userId = req.params.uid;
   const user = DUMMY_USERS.find(u => {
-    return u.wallet === userId
+    return u.id === userId
   })
   if (!user) {
     return next(new HttpError('could not find a user with such id'), 404)
@@ -32,7 +32,6 @@ const signUp = async (req, res, next) => {
     );
   }
 
-
   const { name, email, password } = req.body;
   const hasUser = DUMMY_USERS.find(u => u.email === email);
   if (hasUser) {
@@ -46,7 +45,6 @@ const signUp = async (req, res, next) => {
     return next(new HttpError('could not create user, please try again'), 500)
   }
 
-
   const createdUser = {
     id: uuid(),
     name,
@@ -55,6 +53,7 @@ const signUp = async (req, res, next) => {
     wallet: uuid()
   }
   DUMMY_USERS.push(createdUser)
+
   let token;
   try {
     token = jwt.sign({ userId: createdUser.id, email: createdUser.email }, 'godDamnMoney_HashKey', { expiresIn: '24h' })
@@ -76,7 +75,7 @@ const login = async (req, res, next) => {
   } catch (err) {
     return next(new HttpError('could not log in, incorrect password'), 500)
   }
-  if (!isValidPassword) return next(new HttpError('identification failed please check credentials'), 422)
+  if (!isValidPassword) return next(new HttpError('identification failed please check credentials'), 403)
 
   let token;
   try {
