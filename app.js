@@ -4,8 +4,7 @@ const bodyParser = require('body-parser');
 const HttpError = require('./utils/httpError');
 const userRoutes = require('./routes/usersRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-
-
+const sequelize = require('./models/connection');
 
 const app = express();
 app.use(bodyParser.json());
@@ -33,5 +32,6 @@ app.use((error, req, res, next) => {
   res.status(error.code || 500);
   return res.json({ message: error.message || 'unknown error occurred' })
 });
-
-app.listen(5000)
+sequelize.sync().then(()=>{
+  app.listen(5000)
+}).catch(err=>console.log(err));
