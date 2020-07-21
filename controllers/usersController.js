@@ -120,6 +120,8 @@ const login = async (req, res, next) => {
   res.json({ message: 'logged in', token, name, userId, email })
 }
 
+const deleteUser = (req, res, next) => {
+}
 const addWallet = async (req, res, next) => {
   let wallet
   try {
@@ -145,7 +147,7 @@ const createWallet = async (creatorId) => {
   } catch (err) {
     throw new HttpError('could not init wallet for the user, please try again', 404);
   }
-  return { walletId: wallet.walletId, creator: wallet.creator };
+  return { walletId: wallet.walletId, currency: wallet.currency };
 }
 
 exports.getUserData = getUserData;
@@ -155,3 +157,4 @@ exports.login = login;
 exports.addWallet = addWallet;
 exports.removeWallet = removeWallet;
 exports.updateWallet = updateWallet;
+exports.deleteUser = deleteUser;
