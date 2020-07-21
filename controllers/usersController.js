@@ -79,7 +79,10 @@ const login = async (req, res, next) => {
 
   let token;
   try {
-    token = jwt.sign({ userId: identifiedUser.id, email: identifiedUser.email }, 'godDamnMoney_HashKey', { expiresIn: '24h' })
+    token = jwt.sign({
+      userId: identifiedUser.id,
+      email: identifiedUser.email
+    }, 'godDamnMoney_HashKey', { expiresIn: '24h' })
   } catch (err) {
     return next(new HttpError('Logging in failed, failed to get a token'), 500)
   }

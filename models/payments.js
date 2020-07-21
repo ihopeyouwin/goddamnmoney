@@ -27,10 +27,6 @@ const Payments = sequelize.define('payments', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  currency: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   date: {
     type: DataTypes.DATEONLY,
     allowNull: false

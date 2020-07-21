@@ -9,7 +9,7 @@ const sequelize = require('./models/connection');
 const app = express();
 app.use(bodyParser.json());
 
-app.use((req, res, next) =>{
+app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -26,12 +26,12 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
-  if(res.headerSent){
+  if (res.headerSent) {
     return next(error)
   }
   res.status(error.code || 500);
   return res.json({ message: error.message || 'unknown error occurred' })
 });
-sequelize.sync().then(()=>{
+sequelize.sync().then(() => {
   app.listen(5000)
-}).catch(err=>console.log(err));
+}).catch(err => console.log(err));

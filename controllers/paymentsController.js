@@ -104,7 +104,7 @@ const updatePayment = (req, res, next) => {
   if (paymentIndex === -1) return next(new HttpError('updated place does not exist'), 404)
 
   let payment = DUMMY_PAYMENTS[paymentIndex]
-  if (payment.creator.toString() !== req.userData.userId){
+  if (payment.creator.toString() !== req.userData.userId) {
     return next(new HttpError('you are not allowed to edit that place', 401));
   }
 
@@ -124,7 +124,7 @@ const deletePayment = (req, res, next) => {
   if (paymentIndex === -1) return next(new HttpError('could not find place to delete'), 404)
 
   let payment = DUMMY_PAYMENTS[paymentIndex]
-  if (payment.creator.toString() !== req.userData.userId){
+  if (payment.creator.toString() !== req.userData.userId) {
     return next(new HttpError('you are not allowed to delete that place', 403));
   }
 

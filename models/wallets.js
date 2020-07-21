@@ -13,6 +13,10 @@ const Wallets = sequelize.define('wallets', {
     type: DataTypes.UUID,
     allowNull: false
   },
+  currency: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 });
 Wallets.hasMany(Payments, {foreignKey: 'wallet'});
 

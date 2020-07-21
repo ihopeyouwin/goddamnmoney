@@ -8,10 +8,10 @@ const Users = require('../models/users');
 const Wallets = require('../models/wallets');
 
 router.post('/signup', [
-  check( 'name').not().isEmpty(),
-  check( 'email').normalizeEmail().isEmail(),
+  check('name').not().isEmpty(),
+  check('email').normalizeEmail().isEmail(),
   check('password').isLength({ min: 6 })
-],usersController.signUp);
+], usersController.signUp);
 router.post('/login', usersController.login);
 router.get('/payments', (req, res) => {
   Payments.findAll({ raw: true }).then(users => {
@@ -34,6 +34,6 @@ router.get('/:uid', usersController.getUserData);
 
 router.post('/addwallet/:wid', usersController.addWallet);
 router.delete('/removewallet/:wid', usersController.removeWallet);
-router.patch('/:pid',  usersController.updateWallet);
+router.patch('/:pid', usersController.updateWallet);
 
 module.exports = router;
