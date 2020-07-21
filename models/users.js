@@ -1,5 +1,7 @@
 const { DataTypes, UUIDV4 } = require('sequelize');
 const sequelize = require('./connection');
+const Payments = require('./payments');
+const Wallets = require('./wallets');
 
 const Users = sequelize.define('users', {
   userId: {
@@ -21,5 +23,8 @@ const Users = sequelize.define('users', {
     allowNull: false
   }
 });
+
+Users.hasMany(Payments, {foreignKey: 'creator'});
+Users.hasMany(Wallets, {foreignKey: 'creator'});
 
 module.exports = Users;

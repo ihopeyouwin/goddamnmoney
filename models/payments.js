@@ -12,7 +12,7 @@ const Payments = sequelize.define('payments', {
     type: DataTypes.UUID,
     allowNull: false
   },
-  walletNo: {
+  wallet: {
     type: DataTypes.UUID,
     allowNull: false
   },
@@ -22,7 +22,6 @@ const Payments = sequelize.define('payments', {
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: false
   },
   category: {
     type: DataTypes.STRING,
