@@ -30,8 +30,8 @@ router.get('/wallets', (req, res) => {
 })
 
 router.use(checkAuth);
-router.get('/:uid', usersController.getUserData);
 
+router.get('/:uid', usersController.getUserData);
 router.post('/addwallet/:wid', usersController.addWallet);
 router.delete('/removewallet/:wid', usersController.removeWallet);
 router.patch('/:pid', usersController.updateWallet);
