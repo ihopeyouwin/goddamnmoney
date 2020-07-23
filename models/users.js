@@ -1,12 +1,12 @@
-const { DataTypes, UUIDV4 } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('./connection');
 const Payments = require('./payments');
 const Wallets = require('./wallets');
 
 const Users = sequelize.define('users', {
   userId: {
-    type: DataTypes.UUID,
-    defaultValue: UUIDV4,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
     allowNull: false
   },

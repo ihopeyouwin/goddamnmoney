@@ -2,6 +2,9 @@
 const HttpError = require('../utils/httpError');
 const uuid = require('uuid/v4');
 const { validationResult } = require('express-validator');
+const Payments = require('../models/payments');
+const Users = require('../models/users');
+const Wallets = require('../models/wallets');
 let DUMMY_PAYMENTS = [
   {
     id: 'p1',
@@ -45,22 +48,36 @@ let DUMMY_PAYMENTS = [
   }
 ]
 
-const getPaymentById = (req, res, next) => {
+const getPaymentById = async (req, res, next) => {
   const paymentId = req.params.pid;
-  const payment = DUMMY_PAYMENTS.find(p => {
-    return p.id === paymentId
-  })
+
+  let payment;
+  try {
+    payment = await Payments.findOne({ where: { paymentId: paymentId }});
+  } catch (err) {
+    return next(new HttpError('something went wrong, fetching payment data failed', 500));
+  }
   if (!payment) {
     return next(new HttpError('could not find a transaction with such id', 404))
   }
+  if (payment.creator.toString() !== req.userData.userId) {
+    return next(new HttpError('you are not allowed to see that payment', 403));
+  }
+
   res.json({ payment })
 }
 
-const getPaymentsByUserId = (req, res, next) => {
+const getPaymentsByUserId = async (req, res, next) => {
   const userId = req.params.uid;
-  const payments = DUMMY_PAYMENTS.filter(p => {
-    return p.creator === userId
-  })
+  if (userId.toString() !== req.userData.userId) {
+    return next(new HttpError('you are not allowed to see that information', 403));
+  }
+  let payments;
+  try {
+    payments = await Payments.findAll({ where: { creator: userId }});
+  } catch (err) {
+    return next(new HttpError('something went wrong, fetching payments data failed', 500));
+  }
   if (!payments || !payments.length) {
     return next(new HttpError('could not find a transactions for that user'), 404)
   }
@@ -99,13 +116,13 @@ const updatePayment = (req, res, next) => {
   }
 
   const { sum, description, category, date } = req.body;
-  const paymentId = req.params.pid
-  const paymentIndex = DUMMY_PAYMENTS.findIndex(p => p.id === paymentId)
+  const paymentId = req.params.pid;
+  const paymentIndex = DUMMY_PAYMENTS.findIndex(p => p.id === paymentId);
   if (paymentIndex === -1) return next(new HttpError('updated place does not exist'), 404)
 
-  let payment = DUMMY_PAYMENTS[paymentIndex]
+  let payment = DUMMY_PAYMENTS[paymentIndex];
   if (payment.creator.toString() !== req.userData.userId) {
-    return next(new HttpError('you are not allowed to edit that place', 401));
+    return next(new HttpError('you are not allowed to edit that data', 401));
   }
 
   DUMMY_PAYMENTS[paymentIndex] = {
@@ -121,11 +138,11 @@ const updatePayment = (req, res, next) => {
 const deletePayment = (req, res, next) => {
   const paymentId = req.params.pid;
   const paymentIndex = DUMMY_PAYMENTS.findIndex(p => p.id === paymentId)
-  if (paymentIndex === -1) return next(new HttpError('could not find place to delete'), 404)
+  if (paymentIndex === -1) return next(new HttpError('could not find payment to delete'), 404)
 
   let payment = DUMMY_PAYMENTS[paymentIndex]
   if (payment.creator.toString() !== req.userData.userId) {
-    return next(new HttpError('you are not allowed to delete that place', 403));
+    return next(new HttpError('you are not allowed to delete that payment', 403));
   }
 
   DUMMY_PAYMENTS = DUMMY_PAYMENTS.filter(p => p.id !== paymentId);
