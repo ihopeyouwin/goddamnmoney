@@ -14,22 +14,18 @@ const getUserData = async (req, res, next) => {
 
   let user;
   try {
-    user = await Users.findOne({ where: { userId: userId }, attributes: ['userId', 'name', 'email'] });
+    user = await Users.findOne({
+      where: { userId: userId },
+      attributes: ['userId', 'name', 'email'],
+      include: [{ model: Wallets, where: { creator: userId }, attributes: ['walletId', 'currency'] }]
+    })
   } catch (err) {
     return next(new HttpError('something went wrong, fetching this data failed', 500));
   }
   if (!user) {
     return next(new HttpError('could not find a user with such id'), 404)
   }
-
-  let userWallets;
-  try {
-    userWallets = await Wallets.findAll({ where: { creator: userId }, attributes: ['walletId', 'currency'] });
-  } catch (err) {
-    return next(new HttpError('something went wrong, fetching this data failed', 500));
-  }
-
-  res.json({ user: { ...user.dataValues, wallets: userWallets } })
+  res.json({ user: user })
 }
 
 const signUp = async (req, res, next) => {
@@ -84,7 +80,8 @@ const signUp = async (req, res, next) => {
       name: createdUser.name,
       email: createdUser.email,
       wallets: [defaultWallet]
-    }, token })
+    }, token
+  })
 }
 
 const login = async (req, res, next) => {
@@ -138,12 +135,19 @@ const removeWallet = (req, res, next) => {
 const updateWallet = (req, res, next) => {
 }
 
-const createWallet = async (creatorId) => {
+const createWallet = async (creatorId, currency) => {
   let wallet;
   try {
-    wallet = await Wallets.create({
-      creator: creatorId
-    })
+    if (currency) {
+      wallet = await Wallets.create({
+        creator: creatorId,
+        currency: currency
+      })
+    } else {
+      wallet = await Wallets.create({
+        creator: creatorId,
+      })
+    }
   } catch (err) {
     throw new HttpError('could not init wallet for the user, please try again', 404);
   }
