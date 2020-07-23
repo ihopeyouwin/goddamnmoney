@@ -3,48 +3,6 @@ const HttpError = require('../utils/httpError');
 const { validationResult } = require('express-validator');
 const Payments = require('../models/payments');
 const Wallets = require('../models/wallets');
-let DUMMY_PAYMENTS = [
-  {
-    id: 'p1',
-    creator: 'u1',
-    wallet: '001',
-    sum: 40000,
-    description: 'shopping',
-    category: 'purchases',
-    currency: 'BYN',
-    date: '2020-05-12T15:03:00.164Z'
-  },
-  {
-    id: 'p2',
-    creator: 'u1',
-    wallet: '001',
-    sum: 30000,
-    description: 'weekend at the seaside',
-    category: 'leisure',
-    currency: 'BYN',
-    date: '2020-06-21T15:03:00.164Z'
-  },
-  {
-    id: 'p3',
-    creator: 'u1',
-    wallet: '002',
-    sum: 10000,
-    description: 'dentist',
-    category: 'health',
-    currency: 'BYN',
-    date: '2020-06-30T15:03:00.164Z'
-  },
-  {
-    id: 'p4',
-    creator: 'u1',
-    wallet: '002',
-    sum: 20000,
-    description: 'car leasing',
-    category: 'transport',
-    currency: 'BYN',
-    date: '2020-07-01T15:03:00.164Z'
-  }
-]
 
 const getPaymentById = async (req, res, next) => {
   const paymentId = parseInt(req.params.pid, 10);
@@ -163,9 +121,11 @@ const deletePayment = async (req, res, next) => {
     return next(new HttpError('something went wrong, could not fetch the payment', 500));
   }
   if (!payment) return next(new HttpError('could not find payment to delete'), 404)
+
   if (payment.creator !== req.userData.userId) {
     return next(new HttpError('you are not allowed to delete that payment', 403));
   }
+
   try {
     await payment.destroy()
   } catch (err) {
