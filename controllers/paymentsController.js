@@ -2,7 +2,6 @@
 const HttpError = require('../utils/httpError');
 const { validationResult } = require('express-validator');
 const Payments = require('../models/payments');
-const Users = require('../models/users');
 const Wallets = require('../models/wallets');
 let DUMMY_PAYMENTS = [
   {
@@ -155,17 +154,23 @@ const updatePayment = async (req, res, next) => {
   res.status(201).json({ message: 'payment successfully updated', updatedPayment });
 }
 
-const deletePayment = (req, res, next) => {
-  const paymentId = req.params.pid;
-  const paymentIndex = DUMMY_PAYMENTS.findIndex(p => p.id === paymentId)
-  if (paymentIndex === -1) return next(new HttpError('could not find payment to delete'), 404)
-
-  let payment = DUMMY_PAYMENTS[paymentIndex]
-  if (payment.creator.toString() !== req.userData.userId) {
+const deletePayment = async (req, res, next) => {
+  const paymentId = parseInt(req.params.pid, 10);
+  let payment;
+  try {
+    payment = await Payments.findOne({ where: { paymentId: paymentId } });
+  } catch (err) {
+    return next(new HttpError('something went wrong, could not fetch the payment', 500));
+  }
+  if (!payment) return next(new HttpError('could not find payment to delete'), 404)
+  if (payment.creator !== req.userData.userId) {
     return next(new HttpError('you are not allowed to delete that payment', 403));
   }
-
-  DUMMY_PAYMENTS = DUMMY_PAYMENTS.filter(p => p.id !== paymentId);
+  try {
+    await payment.destroy()
+  } catch (err) {
+    return next(new HttpError('something went wrong, for some reason payment was not deleted', 500));
+  }
   res.status(200).json({ message: 'payment successfully deleted' });
 }
 
