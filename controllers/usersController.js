@@ -7,8 +7,8 @@ const Users = require('../models/users');
 const Wallets = require('../models/wallets');
 
 const getUserData = async (req, res, next) => {
-  const userId = req.params.uid;
-  if (userId.toString() !== req.userData.userId) {
+  const userId = parseInt(req.params.uid, 10);
+  if (userId !== req.userData.userId) {
     return next(new HttpError('you are not allowed see that information', 403));
   }
 
@@ -114,7 +114,7 @@ const login = async (req, res, next) => {
     return next(new HttpError('Logging in failed, failed to get a token'), 500)
   }
   const { userId, name } = identifiedUser
-  res.json({ message: 'logged in', token, name, userId, email })
+  res.json({ message: 'logged in', token, userId, name, email })
 }
 
 const deleteUser = (req, res, next) => {

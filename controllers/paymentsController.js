@@ -49,18 +49,17 @@ let DUMMY_PAYMENTS = [
 ]
 
 const getPaymentById = async (req, res, next) => {
-  const paymentId = req.params.pid;
-
+  const paymentId = parseInt(req.params.pid, 10);
   let payment;
   try {
-    payment = await Payments.findOne({ where: { paymentId: paymentId }});
+    payment = await Payments.findOne({ where: { paymentId: paymentId } });
   } catch (err) {
     return next(new HttpError('something went wrong, fetching payment data failed', 500));
   }
   if (!payment) {
     return next(new HttpError('could not find a transaction with such id', 404))
   }
-  if (payment.creator.toString() !== req.userData.userId) {
+  if (payment.creator !== req.userData.userId) {
     return next(new HttpError('you are not allowed to see that payment', 403));
   }
 
@@ -68,13 +67,13 @@ const getPaymentById = async (req, res, next) => {
 }
 
 const getPaymentsByUserId = async (req, res, next) => {
-  const userId = req.params.uid;
-  if (userId.toString() !== req.userData.userId) {
+  const userId = parseInt(req.params.uid, 10);
+  if (userId !== req.userData.userId) {
     return next(new HttpError('you are not allowed to see that information', 403));
   }
   let payments;
   try {
-    payments = await Payments.findAll({ where: { creator: userId }});
+    payments = await Payments.findAll({ where: { creator: userId } });
   } catch (err) {
     return next(new HttpError('something went wrong, fetching payments data failed', 500));
   }
@@ -84,27 +83,39 @@ const getPaymentsByUserId = async (req, res, next) => {
   res.json({ payments })
 }
 
-const createPayment = (req, res, next) => {
+const createPayment = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
       new HttpError('Invalid inputs passed, please check your data.', 422)
     );
   }
-
   const { wallet, sum, description, category, currency, date } = req.body;
-  const createdPlace = {
-    id: uuid(),
-    creator: req.userData.userId,
-    wallet,
-    sum,
-    description,
-    category,
-    currency,
-    date: new Date(date).toISOString()
+  let usersWallet;
+  try {
+    usersWallet = await Wallets.findOne({ where: { walletId: wallet } });
+  } catch (err) {
+    return next(new HttpError('something went wrong, wallet check failed', 500));
   }
-  DUMMY_PAYMENTS.push(createdPlace);
-  res.status(201).json(createdPlace);
+  if (usersWallet.creator !== req.userData.userId) {
+    return next(new HttpError('you are not allowed to create payment in this wallet', 403));
+  }
+
+  let createdPayment;
+  try {
+    createdPayment = await Payments.create({
+      creator: req.userData.userId,
+      wallet,
+      sum,
+      description,
+      category,
+      currency,
+      date: new Date(date).toISOString()
+    })
+  } catch (err) {
+    return next(new HttpError('could not create payment, please try again'), 500)
+  }
+  res.status(201).json(createdPayment);
 }
 
 const updatePayment = (req, res, next) => {

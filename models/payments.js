@@ -3,7 +3,7 @@ const sequelize = require('./connection');
 
 const Payments = sequelize.define('payments', {
   paymentId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     autoIncrement: true,
     primaryKey: true,
     allowNull: false
@@ -17,7 +17,7 @@ const Payments = sequelize.define('payments', {
     allowNull: false
   },
   sum: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false
   },
   currency: {
